@@ -24,18 +24,51 @@ static double func(double x);
 
 int main(int argc, char** argv){
 	
+/*	The var a and b are just the bounds for
+ the area which will be calculated. So the area
+ being calculated will be bounded between x = a,
+ x = b, the x-axis, and the function specified in
+ func(). The var sum is the sum of both sum1 and 
+ sum2, this is calculated once the program joins
+ the fork.
+ 	The var pSize is the portion size, I 
+ called it portion, because fraction seemed 
+ misleading. Later in the program a fork occurs.
+ The fork is SPMD with the cores performing
+ the series portion of the Simpson estimate. This
+ pSize variable  is added to the x position which
+ is then ran through the target function each cycle
+ of the while loop. The var med is the median point
+ within the bound b and a. This determines where the
+ 2 summations end. The first summation goes from a
+ to the median - the quotient of the width divided by
+ n. The second summation goes from b, decrementing by
+ q, to the median. 
+ 	The variables sum1 and sum2 are just the 
+sum of the area estimation for each fork respectively.
+*/
+  
 	double a, b, n, sum;
 	double pSize, med;
 	double sum1 = 0, sum2 = 0;
-
+	
+//	This lambda expression is determining the 
+//amount we will increment each cycle for the first 
+//fork and the amount we will decrement each cycle 
+//for the second fork.
 	auto portion = [&] {
 		pSize = (b-a)/n;
 	};
-
+//	This lambda expression is just finding
+//the median, I named it medianish, because I'm
+//insecure about medians. :  ^)
 	auto medianish = [&] {
 		med = a + (b-a)/2;
 	};
-
+	
+//Just receiving input for the lower bound 
+//, upper bound, and number of shapes. Has
+//access to all outisde variables by reference.
 	auto init = [&] {
 		std::cout << "Enter the lower bound" << std::endl;
 		std::cin >> a;
@@ -50,17 +83,35 @@ int main(int argc, char** argv){
 
 	auto run = [&] (bool sequential)  {
 		portion();
-		std::cout << "portion executed" << std::endl;
+		std::cout << "pSize = " << pSize << std::endl;
 		medianish();
 		std::cout << "median executed" << std::endl;
-		double factor = (b - a)/3, area;
-		factor = factor/n;
-
+		double factor, area;
+	
 		par::fork2(
-		
-		//smmation of the lower half of the series	
+/*	The first half of the fork is used to to sum together
+the first half of the Simpson series. This means doing this
+part.
+
+[f(x_0) + 4*f(x_1) + 2*f(x_2) +  ...]
+
+This first half is more simple than the second half of this
+series. This is because  in the series as you can see we 
+alternate between multiplying the function by 4 and 2 after 
+the inital function call. This means we know everytime we
+do the series the first half will first multiply the 
+function output by 4 and then alternate to 2 and so on and
+so forth. The double x1 is used to step through the first
+half of the domain. Each step is the quoteint we calculated
+earlier. To avoid a wasteful if, I just added to intial function
+call to the sum before we even start the while loop and just
+added the quotient to the x1 stepper within it's initialization.
+The bool timesFour is  used to alternate between multiplying the
+function call by 4 and 2. timesFour is initialized to true, because
+we know this is the first half of the series, we know we first 
+multiply by 4 everytime.*/
 		[&] {
-			int x1 = a + pSize;
+			double x1 = a + pSize;
 			bool timesFour = true;
 			sum1 += func(a);
 
@@ -72,10 +123,33 @@ int main(int argc, char** argv){
 
 				timesFour = !timesFour;
 				x1 += pSize;
+				
+
 			}
+
 		}, [&]
+/*	As stated earlier the first half was much less
+fun than the first half. Remember the pattern
+
+[f(x_0) + 4*f(x_1) + 2*f(x_2) + 4*f(x_3) + ...  f(x_n)]
+
+Notice when n is odd the last factor the series uses is 4,
+otherwise the last factor used is 2 before doing the final
+function call. This is the purpose of the first if statement.
+TODO THE CURRENT IF STATEMENT TRUNCATES THE DECIMAL WHICH
+COULD CAUSE ERROR, LOOK FOR MATH.H FUNCTION WHICH CALCULATES
+IF A FLOATING POINTT NUMBER IS EVEN.
+The if statement determines if n is even, because we are 
+started from the later bound and decrementing to the 
+median, if n is even we first use 2 as the factor. If
+n isn't even then we use 4 as the first factor. Other than
+what was previosuly mentioned the second branch is relatively
+similar to the first, except this just sums the second half 
+of the series.*/
+
+
 		{
-			int x2 = b - pSize;
+			double x2 = b - pSize;
 			sum2 += func(b);
 			bool timesTwo;
 
@@ -92,8 +166,12 @@ int main(int argc, char** argv){
 
 				timesTwo = !timesTwo;
 				x2 -= pSize;
+
 			}
 		});
+//Combines the 2 summations and multiplies by the factor
+//previously determined.
+		factor  = (b - a)/(3*n);
 		area = factor * (sum1 + sum2);	
 		std::cout << "area = " << area << std::endl;
 	};
@@ -115,5 +193,5 @@ int main(int argc, char** argv){
 //now, ik im sorry will make more alpha don't worry. Hopefully it
 //will be cin'd in the future.
 static double func(double x){
-	return x*x;
+	return 4 - x*x;
 }
