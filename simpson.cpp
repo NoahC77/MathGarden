@@ -24,6 +24,29 @@ static double func(double x);
 
 int main(int argc, char** argv){
 	
+/*	The var a and b are just the bounds for
+ the area which will be calculated. So the area
+ being calculated will be bounded between x = a,
+ x = b, the x-axis, and the function specified in
+ func(). The var sum is the sum of both sum1 and 
+ sum2, this is calculated once the program joins
+ the fork.
+ 	The var pSize is the portion size, I 
+ called it portion, because fraction seemed 
+ misleading. Later in the program a fork occurs.
+ The fork is SPMD with the cores performing
+ the series portion of the Simpson estimate. This
+ pSize variable  is added to the x position which
+ is then ran through the target function each cycle
+ of the while loop. The var med is the median point
+ within the bound b and a. I JUST THOUGHT THIS COULD BE
+ CAUSING AN ERROR BECAUSE I ASSUMED THE MEDIAN WOULD LAND
+ ON A MULTIPLE OF PSIZE THIS SHOULD BE FIXED SOON.
+ 
+ 	The variables sum1 and sum2 are just the 
+sum of the area estimation for each fork respectively.
+*/
+  
 	double a, b, n, sum;
 	double pSize, med;
 	double sum1 = 0, sum2 = 0;
@@ -35,7 +58,10 @@ int main(int argc, char** argv){
 	auto medianish = [&] {
 		med = a + (b-a)/2;
 	};
-
+	
+//Just receiving input for the lower bound 
+//, upper bound, and number of shapes. Has
+//access to all outisde variables by reference.
 	auto init = [&] {
 		std::cout << "Enter the lower bound" << std::endl;
 		std::cin >> a;
@@ -50,17 +76,15 @@ int main(int argc, char** argv){
 
 	auto run = [&] (bool sequential)  {
 		portion();
-		std::cout << "portion executed" << std::endl;
+		std::cout << "pSize = " << pSize << std::endl;
 		medianish();
 		std::cout << "median executed" << std::endl;
-		double factor = (b - a)/3, area;
-		factor = factor/n;
-
+		double factor = (b - a)/(3*n), area;
+	
 		par::fork2(
-		
 		//smmation of the lower half of the series	
 		[&] {
-			int x1 = a + pSize;
+			double x1 = a + pSize;
 			bool timesFour = true;
 			sum1 += func(a);
 
@@ -72,10 +96,13 @@ int main(int argc, char** argv){
 
 				timesFour = !timesFour;
 				x1 += pSize;
+				
+
 			}
+
 		}, [&]
 		{
-			int x2 = b - pSize;
+			double x2 = b - pSize;
 			sum2 += func(b);
 			bool timesTwo;
 
@@ -92,6 +119,7 @@ int main(int argc, char** argv){
 
 				timesTwo = !timesTwo;
 				x2 -= pSize;
+
 			}
 		});
 		area = factor * (sum1 + sum2);	
