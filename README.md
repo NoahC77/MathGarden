@@ -1,1 +1,5 @@
 # IntegralEstimationsUsingPASL
+This project currently includes a rough Simpon's Rule integral estimation program. In the future more methods of integral estimation will be included along with error calculations, however currently the project only includes the Simpson estimation.The goal of this project is to study the exe time of different estimations and generally just have fun with parallel programming using PASL.
+
+## Getting Started
+The code in this repository uses the PASL library along with the c++ math library. The PASL library can be found here https://github.com/deepsea-inria/pasl/tree/edu. PASL also has very helpful documentation for just getting started which can be found here https://www.cs.cmu.edu/~15210/pasl.html. This is what I'm primarily using while i develop this project as I have just begun learnwing about parallel programming. In order for the code in this repo to work you need to move the .cpp files into the example folder in the PASL library and you must add the .cpp file into the MakeFile. This is explained in more detail on PASL's website, essentially just follow their fib setup example. 
