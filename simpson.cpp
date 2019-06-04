@@ -2,7 +2,7 @@
  *of the area between a curve and the x axis within 2 
  bounds set by the user using 'n' specified by the user.
  Unfortunately right now the function must be hard coded 
- into the curve function. This program uses PASL to
+ into the 'func' function. This program uses PASL to
  split up the summation of the series used in 
  Simpon's Rule. Simpson's rule is the following.
 
@@ -39,7 +39,7 @@ int main(int argc, char** argv){
  pSize variable  is added to the x position which
  is then ran through the target function each cycle
  of the while loop. The var med is the median point
- within the bound b and a. This determines where the
+ within the bounds b and a. This determines where the
  2 summations end. The first summation goes from a
  to the median - the quotient of the width divided by
  n. The second summation goes from b, decrementing by
