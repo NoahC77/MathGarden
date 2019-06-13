@@ -1,0 +1,9 @@
+_build/opt/worker.o: _build/opt/worker.p
+_build/opt/worker.o: _build/opt/machine.p
+_build/opt/worker.ok: _build/opt/machine.ok
+_build/opt/worker.o: _build/opt/pcmdline.p
+_build/opt/worker.ok: _build/opt/pcmdline.ok
+_build/opt/worker.o: _build/opt/logging.p
+_build/opt/worker.ok: _build/opt/logging.ok
+_build/opt/worker.o: _build/opt/stats.p
+_build/opt/worker.ok: _build/opt/stats.ok

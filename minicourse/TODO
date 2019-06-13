@@ -1,0 +1,10 @@
+- use the move operator explicitly so that costs are clear.
+  return by explicit move.
+
+- add unit test generators for exercises
+- add data generators for benchmarking
+
+- fix build problem: dependency analyzer is scavenging comments to find #include directives; should not be
+- prepare makefile
+- plots for granularity controller data (see image)
+- enriched speedup curve

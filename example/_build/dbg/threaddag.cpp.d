@@ -1,0 +1,17 @@
+_build/dbg/threaddag.o: _build/dbg/pcmdline.p
+_build/dbg/threaddag.ok: _build/dbg/pcmdline.ok
+_build/dbg/threaddag.o: _build/dbg/callback.p
+_build/dbg/threaddag.ok: _build/dbg/callback.ok
+_build/dbg/threaddag.o: _build/dbg/threaddag.p
+_build/dbg/threaddag.o: _build/dbg/machine.p
+_build/dbg/threaddag.ok: _build/dbg/machine.ok
+_build/dbg/threaddag.o: _build/dbg/scheduler.p
+_build/dbg/threaddag.ok: _build/dbg/scheduler.ok
+_build/dbg/threaddag.o: _build/dbg/workstealing.p
+_build/dbg/threaddag.ok: _build/dbg/workstealing.ok
+_build/dbg/threaddag.o: _build/dbg/native.p
+_build/dbg/threaddag.ok: _build/dbg/native.ok
+_build/dbg/threaddag.o: _build/dbg/instrategy.p
+_build/dbg/threaddag.ok: _build/dbg/instrategy.ok
+_build/dbg/threaddag.o: _build/dbg/outstrategy.p
+_build/dbg/threaddag.ok: _build/dbg/outstrategy.ok

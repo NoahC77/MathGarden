@@ -1,0 +1,17 @@
+_build/opt/threaddag.o: _build/opt/pcmdline.p
+_build/opt/threaddag.ok: _build/opt/pcmdline.ok
+_build/opt/threaddag.o: _build/opt/callback.p
+_build/opt/threaddag.ok: _build/opt/callback.ok
+_build/opt/threaddag.o: _build/opt/threaddag.p
+_build/opt/threaddag.o: _build/opt/machine.p
+_build/opt/threaddag.ok: _build/opt/machine.ok
+_build/opt/threaddag.o: _build/opt/scheduler.p
+_build/opt/threaddag.ok: _build/opt/scheduler.ok
+_build/opt/threaddag.o: _build/opt/workstealing.p
+_build/opt/threaddag.ok: _build/opt/workstealing.ok
+_build/opt/threaddag.o: _build/opt/native.p
+_build/opt/threaddag.ok: _build/opt/native.ok
+_build/opt/threaddag.o: _build/opt/instrategy.p
+_build/opt/threaddag.ok: _build/opt/instrategy.ok
+_build/opt/threaddag.o: _build/opt/outstrategy.p
+_build/opt/threaddag.ok: _build/opt/outstrategy.ok
