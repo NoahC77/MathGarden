@@ -28,6 +28,8 @@ namespace par = pasl::sched::native;
 double func(double x);
 
 int main(int argc, char** argv){
+
+	std::cout << "If this is shown the Makefile still works! :   ^)" << std::endl;
 	
 /*	The var a and b are just the bounds for
  the area which will be calculated. So the area
