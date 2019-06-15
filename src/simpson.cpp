@@ -26,19 +26,57 @@
 namespace par = pasl::sched::native;
 
 double func(double x);
+double calculateError(int lBound, int hBound, int n);
 
-int main(int argc, char** argv){
+//When you come back change this function to a template function to fix it a bit.
+double calculateError(int lBound, int hBound, int n){ 
 
-	std::cout << "If this is shown the Makefile still works! :   ^)" << std::endl;
+	//Preparing exprtk
+	exprtk::symbol_table<double> symbolTable;
+	exprtk::expression<double> expression;
+	exprtk::parser<double> parser;
 	
-/*	The var a and b are just the bounds for
- the area which will be calculated. So the area
- being calculated will be bounded between x = a,
- x = b, the x-axis, and the function specified in
- func(). The var sum is the sum of both sum1 and 
- sum2, this is calculated once the program joins
- the fork.
- 	The var pSize is the portion size, I 
+	//Used to convert Sybolicc++ expression to string for exprtk
+	stringstream buffer;
+	string stringExpression;
+
+	int m;
+	double max = -INFINITY, x;
+
+	Symbolic x("x"), y;
+	//FUNCTION NEEDS TO BE DEFINED HERE
+	y = (x^5) + 12;
+
+	for(int c = 1; c < 4; c++){
+		y = df(y, x); 
+	}
+	
+	//Converting Symbolicc++ expression to a string for exprtk
+	buffer << y;
+	buffer >> stringExpression;
+
+	symbol_table_double symbolTable;
+	symbolTable.add_variable("x", x);
+	symbolTable.add_constands();
+
+	expression_double expression;
+	expression.register_symbol_table(symbol_table);
+
+	parser_double parser;
+	parser.compile(stringExpression, expression);
+
+
+
+}
+	int main(int argc, char** argv){
+	
+/*The var a and b are just the bounds for the area which will
+be calculated. So the area being calculated will be bounded 
+between x = a, x = b, the x-axis, and the function specified 
+in func(). The var sum is the sum of both sum1 and sum2, this 
+is calculated once the program joins the fork.
+ 
+ The var pSize is the portion size, I 
  called it portion, because fraction seemed 
  misleading. Later in the program a fork occurs.
  The fork is SPMD with the cores performing
@@ -94,6 +132,10 @@ sum of the area estimation for each fork respectively.
 		medianish();
 		std::cout << "median executed" << std::endl;
 		double factor, area;
+
+		calculateError(a, b, n);
+
+
 	
 		par::fork2(
 /*	The first half of the fork is used to to sum together
@@ -196,5 +238,5 @@ of the series.*/
 //now, ik im sorry will make more alpha don't worry. Hopefully it
 //will be cin'd in the future.
 double func(double x){
-	return 4 - x*x;
+	return x*x*x*x*x + 12;
 }
