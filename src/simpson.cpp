@@ -33,30 +33,17 @@ string fourthDerivatv();				//define function here for now
 //TODO: find a way for user to just defined function in cli s
 string fourthDerivatv(){
 	
-
-}
-
-//When you come back change this function to a template function to fix it a bit.
-double calculateError(int lBound, int hBound, int n){ 
-
-	//Preparing exprtk
-	exprtk::symbol_table<double> symbolTable;
-	exprtk::expression<double> expression;
-	exprtk::parser<double> parser;
-	
-	//Used to convert Sybolicc++ expression to string for exprtk
+	//Used to convert Sybolicc++ expression to string for the return
 	stringstream buffer;
 	string stringExpression;
 
-	int m;
-	double max = -INFINITY, deltaX;
 	Symbolic x("x"), y;
 	
-	//FUNCTION NEEDS TO BE DEFINED HERE
+	//FUNCTION NEEDS TO BE DEFINED HERE**************************************************************************
 	y = (x^12) + 12;
-
-	std::cout << "pre differentiate loop y = " << y << std::endl;
 	
+	std::cout << "pre differentiate loop y = " << y << std::endl;
+
 	//Getting 4th derivative of the defined function
 	std::cout << "Differentiating.." << std::endl;
 	for(int c = 1; c < 4; c++){
@@ -65,20 +52,35 @@ double calculateError(int lBound, int hBound, int n){
 		std::cout << "y = " << y << std::endl;
 	}
 
-	/*
-	//Converting Symbolicc++ expression to a string for exprtk
+	//Converting Symbolicc++ expression to a string for return
 	buffer << y;
 	buffer >> stringExpression;
+
+	return stringExpression;
+}
+
+//When you come back change this function to a template function to fix it a bit.
+double calculateError(int lBound, int hBound, int n){ 
+
+	int m;
+	double x, y, rootX;
+	double max = -INFINITY, deltaX;
+	
+	exprtk::symbol_table<double> symbolTable;
+	exprtk::expression<double> derivExpression;
+	exprtk::parser<double> expressionParser;
+	
+	string stringExpression = fourthDerivatv();
 	
 	//DEBUGGING
 	std::cout << "4th derivative: " << stringExpression << std::endl;
 
 	symbolTable.add_variable("x", x);
 	symbolTable.add_constants();
+	
+	derivExpression.register_symbol_table(symbolTable);
 
-	expression.register_symbol_table(symbolTable);
-
-	parser.compile(stringExpression, expression);
+	expressionParser.compile(stringExpression, derivExpression);
 
 	//Begin search for maximum value given delta x	
 	std::cout << "Enter divsor of domain length for delta x to find maximum value for error calculation" << std::endl;
@@ -87,10 +89,18 @@ double calculateError(int lBound, int hBound, int n){
 	deltaX = (hBound - lBound)/m;
 	
 	//Searching for maximum value given delta x.	
-	for(int c = lBound; c <= hBound; c += deltaX){
-		x = c;
+	for(x  = lBound; x <= hBound; x += deltaX){
+		if(derivExpression.value() > max){
+			max = derivExpression.value();
+			rootX = x;	
+			std::cout << "New Max Found @ x = " << rootX << std::endl;
+		}
 	}
-	*/
+
+	std::cout << "Final Max found to be f(" << rootX << ") = " << derivExpression.value() << std::endl;
+	
+	//placeholder
+	return 0;	
 }
 	int main(int argc, char** argv){
 	
