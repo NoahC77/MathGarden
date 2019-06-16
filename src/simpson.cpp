@@ -12,7 +12,7 @@
  *********************************************************
 */
 
-
+#include <string>
 #include <math.h>
 #include <fstream>
 #include "benchmark.hpp"
@@ -27,6 +27,14 @@ namespace par = pasl::sched::native;
 
 double func(double x);
 double calculateError(int lBound, int hBound, int n);
+string fourthDerivatv();				//define function here for now
+
+//function whose area is being estimated defined here for now
+//TODO: find a way for user to just defined function in cli s
+string fourthDerivatv(){
+	
+
+}
 
 //When you come back change this function to a template function to fix it a bit.
 double calculateError(int lBound, int hBound, int n){ 
@@ -41,32 +49,48 @@ double calculateError(int lBound, int hBound, int n){
 	string stringExpression;
 
 	int m;
-	double max = -INFINITY, x;
-
+	double max = -INFINITY, deltaX;
 	Symbolic x("x"), y;
+	
 	//FUNCTION NEEDS TO BE DEFINED HERE
-	y = (x^5) + 12;
+	y = (x^12) + 12;
 
+	std::cout << "pre differentiate loop y = " << y << std::endl;
+	
+	//Getting 4th derivative of the defined function
+	std::cout << "Differentiating.." << std::endl;
 	for(int c = 1; c < 4; c++){
 		y = df(y, x); 
+		std::cout << "c = " << c << std::endl;
+		std::cout << "y = " << y << std::endl;
 	}
-	
+
+	/*
 	//Converting Symbolicc++ expression to a string for exprtk
 	buffer << y;
 	buffer >> stringExpression;
+	
+	//DEBUGGING
+	std::cout << "4th derivative: " << stringExpression << std::endl;
 
-	symbol_table_double symbolTable;
 	symbolTable.add_variable("x", x);
-	symbolTable.add_constands();
+	symbolTable.add_constants();
 
-	expression_double expression;
-	expression.register_symbol_table(symbol_table);
+	expression.register_symbol_table(symbolTable);
 
-	parser_double parser;
 	parser.compile(stringExpression, expression);
 
+	//Begin search for maximum value given delta x	
+	std::cout << "Enter divsor of domain length for delta x to find maximum value for error calculation" << std::endl;
 
-
+	cin >> m;
+	deltaX = (hBound - lBound)/m;
+	
+	//Searching for maximum value given delta x.	
+	for(int c = lBound; c <= hBound; c += deltaX){
+		x = c;
+	}
+	*/
 }
 	int main(int argc, char** argv){
 	
