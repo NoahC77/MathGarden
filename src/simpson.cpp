@@ -26,7 +26,7 @@
 namespace par = pasl::sched::native;
 
 double func(double x);
-double calculateError(int lBound, int hBound, int n);
+double calculateError(double lBound, double hBound, int n);
 string fourthDerivatv();				//define function here for now
 
 //function whose area is being estimated defined here for now
@@ -40,13 +40,13 @@ string fourthDerivatv(){
 	Symbolic x("x"), y;
 	
 	//FUNCTION NEEDS TO BE DEFINED HERE**************************************************************************
-	y = (x^12) + 12;
+	y = -(x^6) + 12;
 	
 	std::cout << "pre differentiate loop y = " << y << std::endl;
 
 	//Getting 4th derivative of the defined function
 	std::cout << "Differentiating.." << std::endl;
-	for(int c = 1; c < 4; c++){
+	for(int c = 1; c <= 4; c++){
 		y = df(y, x); 
 		std::cout << "c = " << c << std::endl;
 		std::cout << "y = " << y << std::endl;
@@ -60,7 +60,7 @@ string fourthDerivatv(){
 }
 
 //When you come back change this function to a template function to fix it a bit.
-double calculateError(int lBound, int hBound, int n){ 
+double calculateError(double lBound, double hBound, double n){ 
 
 	int m;
 	double x, y, rootX;
@@ -87,17 +87,22 @@ double calculateError(int lBound, int hBound, int n){
 
 	cin >> m;
 	deltaX = (hBound - lBound)/m;
-	
+	std::cout << "deltaX = " << deltaX << ", lBound = " << lBound << ", hBound = " << hBound << std::endl;
+
+	//Preparing x for step through domain	
+	x = lBound;
 	//Searching for maximum value given delta x.	
-	for(x  = lBound; x <= hBound; x += deltaX){
+	for(int c = 0; c < m; c++, x += deltaX){
 		if(derivExpression.value() > max){
 			max = derivExpression.value();
 			rootX = x;	
-			std::cout << "New Max Found @ x = " << rootX << std::endl;
-		}
+		}	
 	}
 
-	std::cout << "Final Max found to be f(" << rootX << ") = " << derivExpression.value() << std::endl;
+	//Maximum Value within [a, b] of fourth deriv f(x) @ rootX so we assign to x to get value.	
+	x = rootX;
+	max = derivExpression.value();
+	std::cout << "Final Max found to be f(" << rootX << ") = " << max << std::endl;
 	
 	//placeholder
 	return 0;	
@@ -272,5 +277,5 @@ of the series.*/
 //now, ik im sorry will make more alpha don't worry. Hopefully it
 //will be cin'd in the future.
 double func(double x){
-	return x*x*x*x*x + 12;
+	return	-pow(x, 6) + 12;
 }
