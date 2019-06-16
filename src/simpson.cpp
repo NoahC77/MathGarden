@@ -27,7 +27,7 @@ namespace par = pasl::sched::native;
 
 double func(double x);
 double calculateError(double lBound, double hBound, int n);
-string fourthDerivatv();				//define function here for now
+string fourthDerivatv();				//define function here aswell as in func() for now
 
 //function whose area is being estimated defined here for now
 //TODO: find a way for user to just defined function in cli s
@@ -42,14 +42,10 @@ string fourthDerivatv(){
 	//FUNCTION NEEDS TO BE DEFINED HERE**************************************************************************
 	y = -(x^6) + 12;
 	
-	std::cout << "pre differentiate loop y = " << y << std::endl;
 
 	//Getting 4th derivative of the defined function
-	std::cout << "Differentiating.." << std::endl;
 	for(int c = 1; c <= 4; c++){
 		y = df(y, x); 
-		std::cout << "c = " << c << std::endl;
-		std::cout << "y = " << y << std::endl;
 	}
 
 	//Converting Symbolicc++ expression to a string for return
@@ -63,7 +59,7 @@ string fourthDerivatv(){
 double calculateError(double lBound, double hBound, double n){ 
 
 	int m;
-	double x, y, rootX;
+	double x, y, rootX, factor;
 	double max = -INFINITY, deltaX;
 	
 	exprtk::symbol_table<double> symbolTable;
@@ -72,8 +68,6 @@ double calculateError(double lBound, double hBound, double n){
 	
 	string stringExpression = fourthDerivatv();
 	
-	//DEBUGGING
-	std::cout << "4th derivative: " << stringExpression << std::endl;
 
 	symbolTable.add_variable("x", x);
 	symbolTable.add_constants();
@@ -87,7 +81,6 @@ double calculateError(double lBound, double hBound, double n){
 
 	cin >> m;
 	deltaX = (hBound - lBound)/m;
-	std::cout << "deltaX = " << deltaX << ", lBound = " << lBound << ", hBound = " << hBound << std::endl;
 
 	//Preparing x for step through domain	
 	x = lBound;
@@ -102,10 +95,13 @@ double calculateError(double lBound, double hBound, double n){
 	//Maximum Value within [a, b] of fourth deriv f(x) @ rootX so we assign to x to get value.	
 	x = rootX;
 	max = derivExpression.value();
-	std::cout << "Final Max found to be f(" << rootX << ") = " << max << std::endl;
 	
+	max = abs(max);	
+
+	factor = pow((hBound - lBound), 5)/(180 * pow(n, 4));	
+
 	//placeholder
-	return 0;	
+	return max * factor;
 }
 	int main(int argc, char** argv){
 	
@@ -167,12 +163,10 @@ sum of the area estimation for each fork respectively.
 
 	auto run = [&] (bool sequential)  {
 		portion();
-		std::cout << "pSize = " << pSize << std::endl;
 		medianish();
-		std::cout << "median executed" << std::endl;
-		double factor, area;
+		double factor, area, errorSpace;
 
-		calculateError(a, b, n);
+		errorSpace = calculateError(a, b, n);
 
 
 	
@@ -258,6 +252,7 @@ of the series.*/
 		factor  = (b - a)/(3*n);
 		area = factor * (sum1 + sum2);	
 		std::cout << "area = " << area << std::endl;
+		std::cout << "error <= " << errorSpace << std::endl;
 	};
 
 	auto output = [&] {
