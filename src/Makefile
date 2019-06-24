@@ -34,7 +34,7 @@ PROGRAMS=\
 	sequence.cpp\
 	simpson.cpp\
 	derivatv.cpp\
-	coeff1.cpp
+	vaneck.cpp
 #       add reference to your cpp source here
 
 ####################################################################

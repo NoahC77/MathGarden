@@ -40,13 +40,15 @@ string fourthDerivatv(){
 	Symbolic x("x"), y;
 	
 	//FUNCTION NEEDS TO BE DEFINED HERE**************************************************************************
-	y = -(x^6) + 12;
+	y = (x^6) + sin(x);
 	
 
 	//Getting 4th derivative of the defined function
 	for(int c = 1; c <= 4; c++){
 		y = df(y, x); 
 	}
+
+	std::cout << "y(4) = " << y << std::endl;
 
 	//Converting Symbolicc++ expression to a string for return
 	buffer << y;
@@ -94,6 +96,7 @@ double calculateError(double lBound, double hBound, double n){
 
 	//Maximum Value within [a, b] of fourth deriv f(x) @ rootX so we assign to x to get value.	
 	x = rootX;
+	std::cout << "Max found to be " << x << std::endl;
 	max = derivExpression.value();
 	
 	max = abs(max);	
@@ -272,5 +275,5 @@ of the series.*/
 //now, ik im sorry will make more alpha don't worry. Hopefully it
 //will be cin'd in the future.
 double func(double x){
-	return	-pow(x, 6) + 12;
+	return	pow(x, 6) + sin(x);
 }
