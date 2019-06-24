@@ -27,7 +27,7 @@ In this example only one core is used, if you want to use 'x' number of cores do
 ./simpson.opt -n 45 -proc x
 ```
 
-##TODO
+## TODO
 1. Generate .d files for all headers used in simpson estimation.
 2. Clean up simpson estimation program and improve efficiency.
 3. Allow user defined mathematical functions for the simpson estimation program.
