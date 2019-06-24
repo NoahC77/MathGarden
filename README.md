@@ -1,12 +1,33 @@
-# IntegralEstimationsUsingPASL
-This project currently includes a rough Simpson's rule integral estimation program. In the future more methods of integral estimation will be included along with error calculations, however currently the project only includes the Simpson method estimation. The goal of this project is to study the performance of estimations of varying functions and to optimize them along with making the program decently user friendly. The main goal is just to have fun with programming no linearly and playing with math, so the focus of the project could really change at any time. The focus of the project may change, but the project is tied to PASL which stands for Parallel Algorithm Scheduling Library and is prenounced like (PASOLE). 						  PASL's github: https://github.com/deepsea-inria/pasl/tree/wedu											    This project also uses the Symbolicc++ library to differentiate functions and exprtk.								      Symbolicc++: symboliccpp.sourceforge.net														        exprtk: https://github.com/ArashPartow/exprtk														  Lastly this project uses the c++11 atomic class to prevent race conditions.
+# Math Garden
+	This project's goal is to learn about writting programs that use multiple cores, improve how I write these programs, and have fun combining programming with various things from math.This project uses a number of libraries and source code from other code sources, the first being [PASL](https://github.com/deepsea-inria/pasl). PASL stands for Parallel Algorithm Scheduling Library and interestingly is pernounced "PASOLE". This library along with it's bash scripts is used to bundle together various dependencies to allow the project to fork with c++ lambda expression among many other things it is used alot in this project. Another library currently used is the computer algebra library [Symbolicc++](symboliccpp.sourceforge.net), however this may soon change to meet the goal of user defined mathematical functions for the simpson estimation. Lastly the library [exprtk](www.partow.net/programming/exprtk/index.html) is used aswell for things like evaluating mathmatical functions at given points. exprtk stands for Mathematical Expression Parsing And Evaluation library.
 
-## Getting Started
-Because this project relies so heavily on the previously mentioned libraries, make sure you have all the dependencies for each library. I probably shouldve mentioned this much sooner, but PASL only runs on Unix. On another note I am working on this on linuxmint-19.1-cinnamon 64 bit. Other than that you should be able to simply download the code and get to editing.
+##Getting Started
+	The code used from the previously mentioned repositories and the source code has the following dependencies.
+- [gcc](https://gcc.gnu.org)
+- [php](https://www.php.net)
+- [ocaml](www.ocaml.org)
+- [Symbolicc++](symboliccpp.sourceforge.net)
+- [exprtk] (www.partow.net/programming/exprtk/index.html)
+- c++11
+- Unix
 
-## TODO
--Take in user specified functions
--Make function to calculate possible error given 'n'.
--Finish README.md :              ^)
+To generate the .opt file
+```
+make simpson.opt -j
+```
 
+To run the .opt with a number of cores.
+```
+./simpson.opt -n 45 -proc 1
+```
+In this example only one core is used, if you want to use 'x' number of cores do
+```
+./simpson.opt -n 45 -proc x
+```
+
+##TODO
+1. Generate .d files for all headers used in simpson estimation.
+2. Clean up simpson estimation program and improve efficiency.
+3. Allow user defined mathematical functions for the simpson estimation program.
+4. Thoughtfully design and program the vaneck sequence program to write the vaneck sequence of user defined length to a text file.
 
