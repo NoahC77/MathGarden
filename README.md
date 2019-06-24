@@ -8,8 +8,8 @@ The code used from the previously mentioned repositories and the source code has
 - [gcc](https://gcc.gnu.org)
 - [php](https://www.php.net)
 - [ocaml](www.ocaml.org)
-- [Symbolicc++](symboliccpp.sourceforge.net)
-- [exprtk] (www.partow.net/programming/exprtk/index.html)
+- [Symbolicc++](https://sourceforge.net/projects/symboliccpp)
+- [exprtk](www.partow.net/programming/exprtk/index.html)
 - c++11
 - Unix
 
