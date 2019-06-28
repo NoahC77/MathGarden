@@ -15,6 +15,7 @@
 #include <string>
 #include <math.h>
 #include <fstream>
+#include <thread>
 #include "benchmark.hpp"
 
 //Below lines have double space after #include to prevent makefile
@@ -27,10 +28,12 @@ namespace par = pasl::sched::native;
 
 double func(double x);
 double calculateError(double lBound, double hBound, int n);
+void allocateDom(double lBound, double hBound, int m, double* bounds[]);
+void searchMax(double lBound, double hBound, int deltaX, string stringExpression);
 string fourthDerivatv();				//define function here aswell as in func() for now
 
 //function whose area is being estimated defined here for now
-//TODO: find a way for user to just defined function in cli s
+//TODO: find a way for user to just defined function in cli 
 string fourthDerivatv(){
 	
 	//Used to convert Sybolicc++ expression to string for the return
@@ -56,51 +59,119 @@ string fourthDerivatv(){
 
 	return stringExpression;
 }
-
-//When you come back change this function to a template function to fix it a bit.
-double calculateError(double lBound, double hBound, double n){ 
-
-	int m;
-	double x, y, rootX, factor;
-	double max = -INFINITY, deltaX;
+/*	allocateDom takes the lower bound, higher bound, the step size when
+ *searching for maximum, and an array which will contain the bounds to 
+ *where each fork will end and begin it's search for the local maximum. 
+ *The way the array holds the lower and upper bounds of each fork's domain
+ *of search is represented like this.
+ *
+ * search domain 1 - [bounds[0], bounds[1]]
+ * search domain 2 - [bounds[2], bounds[3]]
+ * search domain 3 - [bounds[4], bounds[5]]
+ * search domain 4 - [bounds[6], bounds[7]]
+ *
+ * 	The purpose of allocateDom is to assignt correct bounds within
+ * the array so the workload of finding the local max can be split up as evenly 
+ * as possible. First allocateDom assigns the lower bound value to 
+ * bounds[0]. The following for loop handles the the middle six indexes
+ * within the bounds array. It does this by finding the value of x at 
+ * every step that completes a quarter of the total steps. The size
+ * of a quarter is decided using integer division so if your total number
+ * of steps isn't divisble by four then the quarters will be slightly 
+ * smaller than actual quarters. The high bound for the final search domain
+ * is assigned to the high bound of the whole domain so compensate for this
+ * integer divison meaning worst case the  4th search domain will be the
+ * largest while the other 3 will always be the same.
+ *
+*/
+void allocateDom(double lBound, double hBound, int m, double bounds[]){
 	
+	double stepThru = lBound, stepSize = (hBound - lBound)/m;
+	int stepCount = 0;
+	
+	bounds[0] = stepThru;
+	stepThru += stepSize;
+
+	for(int index = 1; index <= 6; stepThru += stepSize, stepCount++){
+		
+		if(stepCount == m / 4){
+			stepCount = 0;
+			bounds[index] = stepThru;
+			index++;
+			bounds[index] = stepThru;
+			index++;
+		}	
+	}
+
+	bounds[7] = hBound;
+}
+
+//	F = The set of values of x that appear when stepping through the domain in deltaX sized steps
+//		starting from lBound.
+//
+//	A function that takes the low and high bound of the domain where we are looking for the local
+//maximum of as doubles, delta x, and the function/expression we are looking for the max of
+//THE DIFFERENCE BETWEEN lBound AND hBound MUST BE EVEN DIVISIBLE BY deltaX OR THE FUNCTION'S RETURN
+//WILL BE WRONG. The function parses the 'stringExpression' variable into a exprtk expression<double>
+//object and finds the member of F that yields that largest value of f(x) by checking each member's value
+//in a loop. The member of F that yeilds the largest value of f(x) is returned. 
+void searchMax(double lBound, double hBound, int deltaX, string stringExpression, double *max, double *root){
+
+	double  x, y, expValHold;
+	const double NEGINFINITE = -INFINITY;
+
+	//Setting up exprtk to parse and eval function	
 	exprtk::symbol_table<double> symbolTable;
-	exprtk::expression<double> derivExpression;
+	exprtk::expression<double> expression;
 	exprtk::parser<double> expressionParser;
-	
-	string stringExpression = fourthDerivatv();
-	
-
+		
 	symbolTable.add_variable("x", x);
 	symbolTable.add_constants();
 	
-	derivExpression.register_symbol_table(symbolTable);
+	expression.register_symbol_table(symbolTable);
 
-	expressionParser.compile(stringExpression, derivExpression);
+	expressionParser.compile(stringExpression, expression);
+
+	//TODO make exception if difference between lBound and hBound isn't evenly divisble by deltaX	
+	//then put the follow loop in a try catch block.
+	
+
+	
+        *max = NEGINFINITE;
+
+	for(double x = lBound; x <= hBound; x += deltaX){
+		if(expression.value() > *max){
+			*max = expression.value(); 
+			*root = x;	
+		}	
+	}
+
+	*max = expression.value();	
+	*max = abs(*max);	
+	
+
+	std::cout << "Max found to be " << max << "@" << root << std::endl;
+	
+}
+
+double calculateError(double lBound, double hBound, double n){ 
+
+	int m;
+	double* maximums[4], rootXs[4];
+	double factor,  deltaX;	
+	string stringExpression = fourthDerivatv();
 
 	//Begin search for maximum value given delta x	
-	std::cout << "Enter divsor of domain length for delta x to find maximum value for error calculation" << std::endl;
+	std::cout << "Enter divsor of the function's bounded domain to search for local maximum" << std::endl;
 
 	cin >> m;
 	deltaX = (hBound - lBound)/m;
 
-	//Preparing x for step through domain	
-	x = lBound;
-	//Searching for maximum value given delta x.	
-	for(int c = 0; c < m; c++, x += deltaX){
-		if(derivExpression.value() > max){
-			max = derivExpression.value();
-			rootX = x;	
-		}	
-	}
-
-	//Maximum Value within [a, b] of fourth deriv f(x) @ rootX so we assign to x to get value.	
-	x = rootX;
-	std::cout << "Max found to be " << x << std::endl;
-	max = derivExpression.value();
+	//Searching for maximum value given delta x, fork and call goes here.
 	
-	max = abs(max);	
-
+	
+	//Maximum Value within [a, b] of fourth deriv f(x) @ rootX so we assign to x to get value.	
+	double max = 0;
 	factor = pow((hBound - lBound), 5)/(180 * pow(n, 4));	
 
 	//placeholder
@@ -168,7 +239,7 @@ sum of the area estimation for each fork respectively.
 		portion();
 		medianish();
 		double factor, area, errorSpace;
-
+		double *bounds = new double [8];		
 		errorSpace = calculateError(a, b, n);
 
 
@@ -250,8 +321,8 @@ of the series.*/
 
 			}
 		});
-//Combines the 2 summations and multiplies by the factor
-//previously determined.
+		//Combines the 2 summations and multiplies by the factor
+		//previously determined.
 		factor  = (b - a)/(3*n);
 		area = factor * (sum1 + sum2);	
 		std::cout << "area = " << area << std::endl;
