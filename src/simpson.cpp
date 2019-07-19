@@ -28,8 +28,8 @@ namespace par = pasl::sched::native;
 
 double func(double x);
 double calculateError(double lBound, double hBound, int n);
-void allocateDom(double lBound, double hBound, int m, double* bounds[]);
-void searchMax(double lBound, double hBound, int deltaX, string stringExpression);
+void allocateDom(double lBound, double hBound, int m, double*& bounds);
+void searchMax(double lBound, double hBound, double deltaX, string stringExpression, double* max, double* root);
 string fourthDerivatv();				//define function here aswell as in func() for now
 
 //function whose area is being estimated defined here for now
@@ -84,26 +84,32 @@ string fourthDerivatv(){
  * largest while the other 3 will always be the same.
  *
 */
-void allocateDom(double lBound, double hBound, int m, double bounds[]){
+void allocateDom(double lBound, double hBound, int m, double*& bounds){
 	
 	double stepThru = lBound, stepSize = (hBound - lBound)/m;
 	int stepCount = 0;
 	
 	bounds[0] = stepThru;
+	std::cout << "lBound assigned in allocDom" << std::endl;
 	stepThru += stepSize;
 
-	for(int index = 1; index <= 6; stepThru += stepSize, stepCount++){
+	for(int index = 1; index < 7; stepThru += stepSize, stepCount++){
 		
 		if(stepCount == m / 4){
+			std::cout << "Entered if" << std::endl;
 			stepCount = 0;
 			bounds[index] = stepThru;
+			std::cout << "assigned index: " << index << std::endl;
 			index++;
 			bounds[index] = stepThru;
+			std::cout << "assigned index: " << index << std::endl;
 			index++;
+			std::cout << "2nd index added" << std::endl;
 		}	
 	}
 
 	bounds[7] = hBound;
+
 }
 
 //	F = The set of values of x that appear when stepping through the domain in deltaX sized steps
@@ -115,7 +121,9 @@ void allocateDom(double lBound, double hBound, int m, double bounds[]){
 //WILL BE WRONG. The function parses the 'stringExpression' variable into a exprtk expression<double>
 //object and finds the member of F that yields that largest value of f(x) by checking each member's value
 //in a loop. The member of F that yeilds the largest value of f(x) is returned. 
-void searchMax(double lBound, double hBound, int deltaX, string stringExpression, double *max, double *root){
+void searchMax(double lBound, double hBound, double deltaX, string stringExpression, double* max, double* root){
+
+	std::cout << "searchMax running..." << std::endl;
 
 	double  x, y, expValHold;
 	const double NEGINFINITE = -INFINITY;
@@ -132,17 +140,21 @@ void searchMax(double lBound, double hBound, int deltaX, string stringExpression
 
 	expressionParser.compile(stringExpression, expression);
 
-	//TODO make exception if difference between lBound and hBound isn't evenly divisble by deltaX	
+	//TODO make exception if difference between lBound and 
+	//hBound isn't evenly divisble by deltaX.
 	//then put the follow loop in a try catch block.
 	
 
 	
         *max = NEGINFINITE;
+	std::cout << "max initialized to "<< *max << std::endl;
 
 	for(double x = lBound; x <= hBound; x += deltaX){
+	std::cout << "for loop cycle started" << std::endl;
 		if(expression.value() > *max){
 			*max = expression.value(); 
 			*root = x;	
+			std::cout << "New max f(x) = " << *max << " found @ x = " << *root << std::endl;
 		}	
 	}
 
@@ -150,27 +162,85 @@ void searchMax(double lBound, double hBound, int deltaX, string stringExpression
 	*max = abs(*max);	
 	
 
-	std::cout << "Max found to be " << max << "@" << root << std::endl;
+	std::cout << "Max found to be " << *max << " @ " << *root << std::endl;
+	std::cout << "searchMax finished!" << std::endl;
 	
 }
 
 double calculateError(double lBound, double hBound, double n){ 
 
 	int m;
-	double* maximums[4], rootXs[4];
-	double factor,  deltaX;	
+       	double* subDoms = new double [8];
+	double** maximums = new double* [4];
+	double** rootXs = new double* [4];
+	double factor,  deltaX, finalMax, finalRoot;
 	string stringExpression = fourthDerivatv();
 
 	//Begin search for maximum value given delta x	
-	std::cout << "Enter divsor of the function's bounded domain to search for local maximum" << std::endl;
+	std::cout << "Enter divsor of the function's bounded " << std::endl;
+	std::cout << "to search for local maximum domain" << std::endl;
 
 	cin >> m;
 	deltaX = (hBound - lBound)/m;
 
-	//Searching for maximum value given delta x, fork and call goes here.
+	allocateDom(lBound, hBound, m, subDoms);
+
+	std::cout << "subDom array" << std::endl;
+	for(int c = 0; c < 8; c++){
+		std::cout << "[" << subDoms[c] << "]";
+	}
+	std::cout << std::endl;
+
+
+
+	//Linear searching for  maximum values within each quadrant.
+	par::fork2(
+	[=, &maximums, &rootXs] {	
+		std::cout << "fork 1 running..." << std::endl;	
+
+		std::thread firstMax(searchMax, subDoms[0], subDoms[1], deltaX, stringExpression, maximums[0], rootXs[0]);
+		std::thread secondMax(searchMax, subDoms[2], subDoms[3], deltaX, stringExpression, maximums[1], rootXs[1]);
+
+		firstMax.join();
+		secondMax.join();
+
+		std::cout << "first 2 threads join finished" << std::endl;
+	}, [=, &maximums, &rootXs] {	
+		std::cout << "fork 2 running..." << std::endl;	
+
+		std::thread thirdMax(searchMax, subDoms[4], subDoms[5], deltaX, stringExpression, maximums[2], rootXs[2]);	
+		std::thread fourthMax(searchMax, subDoms[6], subDoms[7], deltaX, stringExpression, maximums[3], rootXs[3]);
+
+		thirdMax.join();
+		fourthMax.join();
+		std::cout << "second 2 threads join finished" << std::endl;
+	});
 	
+	//DEBUG: Testing allocation of maximums, roots, and subdoms.***
 	
-	//Maximum Value within [a, b] of fourth deriv f(x) @ rootX so we assign to x to get value.	
+	std::cout << "Maximums: ";
+	for(int c = 0; c < 4; c++){
+		std::cout << "[" << maximums[c] << "]";
+	}
+	std::cout << std::endl;
+
+	std::cout << "Roots: ";
+	for(int c = 0; c < 4; c++){
+		std::cout << "[" << rootXs[c] << "]";
+	}
+	std::cout << std::endl;
+
+	std::cout << "Sub Domains:";
+	for(int c = 0; c < 8; c++){
+		std::cout << "[" << subDoms[c];
+		std::cout << ", " << subDoms[++c] << "]";
+	}
+	std::cout << std::endl;
+	
+	//*************************************************************
+	
+	//Maximum Value within [a, b] of fourth deriv f(x) 
+	//@ rootX so we assign to x to get value.	
 	double max = 0;
 	factor = pow((hBound - lBound), 5)/(180 * pow(n, 4));	
 
