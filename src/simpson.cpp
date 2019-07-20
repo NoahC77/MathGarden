@@ -29,7 +29,7 @@ namespace par = pasl::sched::native;
 double func(double x);
 double calculateError(double lBound, double hBound, int n);
 void allocateDom(double lBound, double hBound, int m, double*& bounds);
-void searchMax(double lBound, double hBound, double deltaX, string stringExpression, double* max, double* root);
+void searchMax(double lBound, double hBound, double deltaX, string stringExpression, double &max, double &root);
 string fourthDerivatv();				//define function here aswell as in func() for now
 
 //function whose area is being estimated defined here for now
@@ -121,7 +121,7 @@ void allocateDom(double lBound, double hBound, int m, double*& bounds){
 //WILL BE WRONG. The function parses the 'stringExpression' variable into a exprtk expression<double>
 //object and finds the member of F that yields that largest value of f(x) by checking each member's value
 //in a loop. The member of F that yeilds the largest value of f(x) is returned. 
-void searchMax(double lBound, double hBound, double deltaX, string stringExpression, double* max, double* root){
+void searchMax(double lBound, double hBound, double deltaX, string stringExpression, double &max, double &root){
 
 	std::cout << "searchMax running..." << std::endl;
 
@@ -146,23 +146,22 @@ void searchMax(double lBound, double hBound, double deltaX, string stringExpress
 	
 
 	
-        *max = NEGINFINITE;
-	std::cout << "max initialized to "<< *max << std::endl;
+        max = NEGINFINITE;
+	std::cout << "max initialized to "<< max << std::endl;
 
 	for(double x = lBound; x <= hBound; x += deltaX){
-	std::cout << "for loop cycle started" << std::endl;
-		if(expression.value() > *max){
-			*max = expression.value(); 
-			*root = x;	
-			std::cout << "New max f(x) = " << *max << " found @ x = " << *root << std::endl;
+		if(expression.value() > max){
+			max = expression.value(); 
+			root = x;	
+			std::cout << "New max f(x) = " << max << " found @ x = " << root << std::endl;
 		}	
 	}
 
-	*max = expression.value();	
-	*max = abs(*max);	
+	max = expression.value();	
+	max = abs(max);	
 	
 
-	std::cout << "Max found to be " << *max << " @ " << *root << std::endl;
+	std::cout << "Max found to be " << max << " @ " << root << std::endl;
 	std::cout << "searchMax finished!" << std::endl;
 	
 }
@@ -171,8 +170,7 @@ double calculateError(double lBound, double hBound, double n){
 
 	int m;
        	double* subDoms = new double [8];
-	double** maximums = new double* [4];
-	double** rootXs = new double* [4];
+	double maximums[4],  rootXs[4];
 	double factor,  deltaX, finalMax, finalRoot;
 	string stringExpression = fourthDerivatv();
 
@@ -198,8 +196,9 @@ double calculateError(double lBound, double hBound, double n){
 	[=, &maximums, &rootXs] {	
 		std::cout << "fork 1 running..." << std::endl;	
 
-		std::thread firstMax(searchMax, subDoms[0], subDoms[1], deltaX, stringExpression, maximums[0], rootXs[0]);
-		std::thread secondMax(searchMax, subDoms[2], subDoms[3], deltaX, stringExpression, maximums[1], rootXs[1]);
+		thread firstMax(searchMax, subDoms[0], subDoms[1], deltaX, stringExpression, std::ref(maximums[0]), std::ref(rootXs[0]));
+		thread secondMax(searchMax, subDoms[2], subDoms[3], deltaX, stringExpression, std::ref(maximums[1]), std::ref(rootXs[1]));
+
 
 		firstMax.join();
 		secondMax.join();
@@ -208,8 +207,8 @@ double calculateError(double lBound, double hBound, double n){
 	}, [=, &maximums, &rootXs] {	
 		std::cout << "fork 2 running..." << std::endl;	
 
-		std::thread thirdMax(searchMax, subDoms[4], subDoms[5], deltaX, stringExpression, maximums[2], rootXs[2]);	
-		std::thread fourthMax(searchMax, subDoms[6], subDoms[7], deltaX, stringExpression, maximums[3], rootXs[3]);
+		thread thirdMax(searchMax, subDoms[4], subDoms[5], deltaX, stringExpression, std::ref(maximums[2]), std::ref(rootXs[2]));	
+		thread fourthMax(searchMax, subDoms[6], subDoms[7], deltaX, stringExpression, std::ref(maximums[3]), std::ref(rootXs[3]));
 
 		thirdMax.join();
 		fourthMax.join();
