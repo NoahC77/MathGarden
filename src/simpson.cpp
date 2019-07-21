@@ -43,7 +43,7 @@ string fourthDerivatv(){
 	Symbolic x("x"), y;
 	
 	//FUNCTION NEEDS TO BE DEFINED HERE**************************************************************************
-	y = (x^6) + sin(x);
+	y = (x^6)  + 100 - (x^7);
 	
 
 	//Getting 4th derivative of the defined function
@@ -145,20 +145,20 @@ void searchMax(double lBound, double hBound, double deltaX, string stringExpress
 	//then put the follow loop in a try catch block.
 	
 
-	
-        max = NEGINFINITE;
+	x = lBound;
+	max = abs(expression.value());
 	std::cout << "max initialized to "<< max << std::endl;
-
-	for(double x = lBound; x <= hBound; x += deltaX){
-		if(expression.value() > max){
-			max = expression.value(); 
+	while(x <= hBound){
+		
+		if(abs(expression.value()) >=  max){
+			max = abs(expression.value()); 
 			root = x;	
-			std::cout << "New max f(x) = " << max << " found @ x = " << root << std::endl;
+			std::cout << "New max f(x) = " << abs(expression.value()) << " found @ x = " << root << std::endl;
 		}	
+
+		x += deltaX;
 	}
 
-	max = expression.value();	
-	max = abs(max);	
 	
 
 	std::cout << "Max found to be " << max << " @ " << root << std::endl;
@@ -238,13 +238,23 @@ double calculateError(double lBound, double hBound, double n){
 	
 	//*************************************************************
 	
-	//Maximum Value within [a, b] of fourth deriv f(x) 
+	//Maximum Value within [a, b] of fourth deriv f(x) 	
+	finalMax = maximums[0];
+	finalRoot = rootXs[0];
+	for(int c = 1; c < 4; c++){
+		if(finalMax <= maximums[c]){
+			finalMax = maximums[c];
+			finalRoot = rootXs[c];
+		}
+	}
+
+	std::cout << "Final Max (abs): " << finalMax << " @ x = " << finalRoot << std::endl;
+	finalMax = abs(finalMax);
 	//@ rootX so we assign to x to get value.	
-	double max = 0;
 	factor = pow((hBound - lBound), 5)/(180 * pow(n, 4));	
 
 	//placeholder
-	return max * factor;
+	return finalMax * factor;
 }
 	int main(int argc, char** argv){
 	
@@ -415,5 +425,5 @@ of the series.*/
 //now, ik im sorry will make more alpha don't worry. Hopefully it
 //will be cin'd in the future.
 double func(double x){
-	return	pow(x, 6) + sin(x);
+	return	pow(x, 6) + sin(x) + 100 - pow(x, 7);
 }
